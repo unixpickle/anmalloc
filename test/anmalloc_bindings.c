@@ -40,3 +40,7 @@ void anmalloc_lock(anmalloc_lock_t * lock) {
 void anmalloc_unlock(anmalloc_lock_t * lock) {
   pthread_mutex_unlock(lock);
 }
+
+uint64_t __anmalloc_brk_size() {
+  return used;
+}
