@@ -4,5 +4,9 @@ This will be an easy-to-use standard library allocation system. It will have sup
 
 # Dependencies
 
-I plan to use `brk()` and `sbrk()` to allocate a linear heap region. Actual allocation will be performed with `analloc`, and synchronization will be carried out with the pthread mutex locking mechanism.
+Here's a list:
+ * `unistd.h` - the `brk()` and `sbrk()` system calls
+ * `assert.h` - used extensively to ensure safe memory management
+ * `pthread.h` - uses `pthread_mutex_lock` and `pthread_mutex_unlock`, as well as `PTHREAD_MUTEX_INITIALIZER`; because *anmalloc* uses basic pthreads, you cannot use *anmalloc* in your basic pthread implementation (although you *may* use it for specific cases of pthread mutexes like recursive locks or robust locks).
+ * *analloc* - used for internal allocation
 
