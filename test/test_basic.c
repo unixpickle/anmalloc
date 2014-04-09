@@ -4,10 +4,12 @@
 
 void test_units();
 void test_breaking();
+void test_realloc();
 
 int main(int argc, const char * argv[]) {
   test_units();
   test_breaking();
+  test_realloc();
   return 0;
 }
 
@@ -47,6 +49,31 @@ void test_breaking() {
   
   anmalloc_free(buff);
   assert(__anmalloc_brk_size() == 0);
+  
+  printf(" passed!\n");
+}
+
+void test_realloc() {
+  printf("testing realloc... ");
+  
+  void * buff = anmalloc_alloc(0x80000);
+  buff = anmalloc_realloc(buff, 0x40000);
+  assert(buff != NULL);
+  
+  void * buff1 = anmalloc_alloc(0x40000);
+  assert(buff1 == buff + 0x40000);
+  anmalloc_free(buff);
+  anmalloc_free(buff1);
+  
+  buff = anmalloc_alloc(0x40000);
+  buff1 = anmalloc_alloc(0x40000);
+  assert(__anmalloc_brk_size() == 0x100000);
+  buff = anmalloc_realloc(buff, 0x80000);
+  assert(__anmalloc_brk_size() == 0x200000);
+  buff1 = anmalloc_realloc(buff1, 0x80000);
+  assert(__anmalloc_brk_size() == 0x200000);
+  anmalloc_free(buff);
+  anmalloc_free(buff1);
   
   printf(" passed!\n");
 }
