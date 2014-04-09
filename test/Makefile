@@ -13,4 +13,4 @@ build:
 
 clean:
 	rm -rf build/
-	cd ../build && $(MAKE) clean
+	cd ../ && $(MAKE) clean

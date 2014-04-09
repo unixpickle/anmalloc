@@ -1,4 +1,6 @@
 #include <anmalloc_bindings.h>
+#include <stdlib.h>
+#include <assert.h>
 
 static void * buffer = NULL;
 static intptr_t used = 0;
@@ -7,7 +9,7 @@ static intptr_t allocated = 0;
 void * anmalloc_sbrk(intptr_t incr) {
   if (!allocated) {
     allocated = 0x10000000;
-    int res = posix_memalign(&buffer, allocated, allocated);
+    int res = posix_memalign(&buffer, (size_t)allocated, (size_t)allocated);
     assert(res == 0);
   }
   

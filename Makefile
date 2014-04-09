@@ -1,5 +1,5 @@
 CFILES=src/anmalloc.c
-INCLUDES=-Iinclude
+INCLUDES=-Iinclude -Ilibs/analloc/src
 
 all: build
 	for file in $(CFILES); do \
@@ -11,4 +11,3 @@ build:
 
 clean:
 	rm -rf build/
-

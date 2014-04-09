@@ -1,5 +1,7 @@
 #include <anmalloc/anmalloc.h>
 #include <assert.h>
+#include <string.h>
+#include <stdbool.h>
 #include <analloc.h>
 
 typedef struct {
@@ -18,7 +20,7 @@ static void * _allocator_base(uint64_t alloc);
 static uint64_t _allocator_lookup(void * buf);
 #define _allocator_prefix(x) ((prefix_t *)_allocator_base(x))
 
-static void * _raw_alloc(size_t size);
+static void * _raw_alloc(uint64_t size);
 static bool _create_allocator();
 static bool _release_allocator();
 
@@ -40,7 +42,7 @@ void anmalloc_free(void * buf) {
   anmalloc_unlock(&lock);
 }
 
-void * anmalloc_alloc(size_t size) {
+void * anmalloc_alloc(uint64_t size) {
   anmalloc_lock(&lock);
   _ensure_initialized();
 
@@ -56,7 +58,7 @@ void * anmalloc_alloc(size_t size) {
   return buf;
 }
 
-void * anmalloc_aligned(size_t align, size_t size) {
+void * anmalloc_aligned(uint64_t align, uint64_t size) {
   anmalloc_lock(&lock);
   _ensure_initialized();
 
@@ -70,17 +72,17 @@ void * anmalloc_aligned(size_t align, size_t size) {
   if ((1 << nextPower) == align) {
     // do a normal malloc here
     anmalloc_unlock(&lock);
-    return malloc(align > size ? align : size);
+    return anmalloc_alloc(align > size ? align : size);
   }
 
-  void * result = malloc((align > size ? align : size) + align);
+  void * result = anmalloc_alloc((align > size ? align : size) + align);
   uint64_t remainder = ((uint64_t)result) % align;
   result += align - remainder;
   anmalloc_unlock(&lock);
   return result;
 }
 
-void * anmalloc_realloc(void * ptr, size_t size) { anmalloc_lock(&lock);
+void * anmalloc_realloc(void * ptr, uint64_t size) {
   anmalloc_lock(&lock);
   _ensure_initialized();
 
@@ -88,22 +90,22 @@ void * anmalloc_realloc(void * ptr, size_t size) { anmalloc_lock(&lock);
   assert(allocator < allocatorCount);
   prefix_t * prefix = _allocator_prefix(allocator);
 
-  size_t oldSize;
+  uint64_t oldSize;
   void * mem = analloc_mem_start(&prefix->alloc, ptr, &oldSize);
   if (mem != ptr) {
     anmalloc_unlock(&lock);
     return NULL;
   }
 
-  size_t newSize = size;
-  void * newMem = analloc_realloc(&prefix->alloc, buf, oldSize, &newSize, 0);
+  uint64_t newSize = size;
+  void * newMem = analloc_realloc(&prefix->alloc, ptr, oldSize, &newSize, 0);
   anmalloc_unlock(&lock);
   if (newMem) return newMem;
 
-  void * buffer = malloc(size);
+  void * buffer = anmalloc_alloc(size);
   if (!buffer) return NULL;
-  memcpy(buffer, buf, oldSize > size ? size : oldSize);
-  free(buf);
+  memcpy(buffer, ptr, oldSize > size ? size : oldSize);
+  anmalloc_free(ptr);
   return buffer;
 }
 
@@ -132,11 +134,11 @@ static uint64_t _allocator_lookup(void * buf) {
   return allocator;
 }
 
-static void * _raw_alloc(size_t size) {
+static void * _raw_alloc(uint64_t size) {
   uint64_t i;
   for (i = 0; i < allocatorCount; i++) {
     prefix_t * pref = _allocator_prefix(i);
-    size_t sizeOut = size;
+    uint64_t sizeOut = size;
     void * buff = analloc_alloc(&pref->alloc, &sizeOut, 0);
     if (buff) {
       pref->used += sizeOut;
