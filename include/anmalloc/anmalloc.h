@@ -1,8 +1,8 @@
 #include <stddef.h>
 #include <stdint.h>
-#include <anmalloc_lock.h>
+#include <anmalloc_bindings.h>
 
-// anmalloc_lock.h must define the following functions:
+// anmalloc_bindings.h must define the following functions:
 // - anmalloc_sbrk
 // - anmalloc_brk
 // - anmalloc_lock

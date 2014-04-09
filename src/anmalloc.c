@@ -7,7 +7,7 @@ typedef struct {
   analloc_struct_t alloc;
 } __attribute__((packed)) prefix_t;
 
-static anmalloc_lock_t lock = PTHREAD_MUTEX_INITIALIZER;
+static anmalloc_lock_t lock = ANMALLOC_LOCK_INITIALIZER;
 static bool isInitialized = false;
 static uint64_t allocatorCount = 0;
 static void * baseBreak = NULL;

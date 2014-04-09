@@ -1,8 +1,9 @@
 CFILES=src/anmalloc.c
+INCLUDES=-Iinclude
 
-all:
+all: build
 	for file in $(CFILES); do \
-		gcc -c $(CFLAGS) $$file -o build/`basename $$file .c`.o; \
+		gcc -c $(CFLAGS) $(INCLUDES) $$file -o build/`basename $$file .c`.o; \
 	done
 
 build:
