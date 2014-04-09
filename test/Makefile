@@ -1,8 +1,14 @@
-CFILES=anmalloc_bindings.c test_basic.c
+CFILES=anmalloc_bindings.c
+PROGRAMS=test_basic.c
+OBJS=../build/*.o ./build/*.o ../libs/analloc/build/*.o
+INCLUDES=-Iinclude -I../include -I../libs/analloc/src
 
-all: ../build build
+all: ../build build ../libs/analloc/build
 	for file in $(CFILES); do \
-		gcc -c -Iinclude -I../include $$file -o build/`basename $$file .c`.o; \
+		gcc -c $(INCLUDES) $$file -o build/`basename $$file .c`.o; \
+	done
+	for file in $(PROGRAMS); do \
+		gcc $(INCLUDES) $(OBJS) $$file -o build/`basename $$file .c`; \
 	done
 
 ../build:
@@ -11,6 +17,10 @@ all: ../build build
 build:
 	mkdir build
 
+../libs/analloc/build:
+	cd ../libs/analloc && $(MAKE)
+
 clean:
 	rm -rf build/
 	cd ../ && $(MAKE) clean
+	cd ../libs/analloc && $(MAKE) clean
