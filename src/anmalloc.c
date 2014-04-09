@@ -1,6 +1,5 @@
 #include <anmalloc/anmalloc.h>
 #include <stddef.h>
-#include <stdint.h>
 #include <assert.h>
 #include <string.h>
 #include <stdbool.h>
