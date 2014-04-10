@@ -50,6 +50,7 @@ void * anmalloc_alloc(uint64_t size) {
   void * buf;
   while (!(buf = _raw_alloc(size))) {
     if (!_create_allocator()) {
+      while (_release_allocator());
       anmalloc_unlock(&lock);
       return NULL;
     }
@@ -69,14 +70,15 @@ void * anmalloc_aligned(uint64_t align, uint64_t size) {
   if (((uint64_t)baseBreak) & ((1 << nextPower) - 1)) {
     return NULL;
   }
-
+  anmalloc_unlock(&lock);
+  
   if ((1 << nextPower) == align) {
-    // do a normal malloc here
-    anmalloc_unlock(&lock);
+    // the normal malloc will be properly aligned
     return anmalloc_alloc(align > size ? align : size);
   }
 
   void * result = anmalloc_alloc((align > size ? align : size) + align);
+  if (!result) return NULL;
   uint64_t remainder = ((uint64_t)result) % align;
   result += align - remainder;
   anmalloc_unlock(&lock);
