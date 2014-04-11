@@ -86,6 +86,8 @@ void * anmalloc_aligned(uint64_t align, uint64_t size) {
 }
 
 void * anmalloc_realloc(void * ptr, uint64_t size) {
+  if (!ptr) return anmalloc_alloc(size);
+  
   anmalloc_lock(&lock);
   _ensure_initialized();
 
