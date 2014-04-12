@@ -87,6 +87,7 @@ void * anmalloc_aligned(uint64_t align, uint64_t size) {
 
 void * anmalloc_realloc(void * ptr, uint64_t size) {
   if (!ptr) return anmalloc_alloc(size);
+  if (!size) size = 1;
   
   anmalloc_lock(&lock);
   _ensure_initialized();
@@ -105,7 +106,11 @@ void * anmalloc_realloc(void * ptr, uint64_t size) {
   uint64_t newSize = size;
   void * newMem = analloc_realloc(&prefix->alloc, ptr, oldSize, &newSize, 0);
   anmalloc_unlock(&lock);
-  if (newMem) return newMem;
+  if (newMem) {
+    prefix->used += newSize;
+    prefix->used -= oldSize;
+    return newMem;
+  }
 
   void * buffer = anmalloc_alloc(size);
   if (!buffer) return NULL;
