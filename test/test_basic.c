@@ -64,8 +64,11 @@ void test_realloc() {
   
   void * buff1 = anmalloc_alloc(0x40000);
   assert(buff1 == buff + 0x40000);
+  
   anmalloc_free(buff);
   anmalloc_free(buff1);
+  
+  assert(__anmalloc_brk_size() == 0);
   
   buff = anmalloc_alloc(0x40000);
   buff1 = anmalloc_alloc(0x40000);
@@ -76,6 +79,7 @@ void test_realloc() {
   assert(__anmalloc_brk_size() == 0x200000);
   anmalloc_free(buff);
   anmalloc_free(buff1);
+  assert(__anmalloc_brk_size() == 0);
   
   printf(" passed!\n");
 }
