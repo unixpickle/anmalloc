@@ -119,6 +119,12 @@ void * anmalloc_realloc(void * ptr, uint64_t size) {
   return buffer;
 }
 
+uint64_t anmalloc_used() {
+  if (!allocatorCount) return 0;
+  
+  return (0x100000 << (allocatorCount - 1));
+}
+
 static void _ensure_initialized() {
   if (isInitialized) return;
   isInitialized = true;
